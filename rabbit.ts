@@ -504,7 +504,6 @@ const Z = (z: string, Q0: string) => {
     var Q1 = cryptoJs.AES.decrypt(z, Q0);
     return JSON.parse(Q1.toString(cryptoJs.enc.Utf8));
   } catch (Q2: any) {
-    console.log(Q2.message);
   }
   return [];
 }
@@ -534,7 +533,6 @@ const V = async () => {
   wasmLoader.greet();
   fake_window.jwt_plugin(Q0);
   let test = new Uint8Array(fake_window.clipboard());
-  console.log(test);
   return test;
 }
 
@@ -550,16 +548,11 @@ const main = async (xrax: string) => {
     "mode": "cors"
   })).json();
   let encrypted = resp_json.sources;
-  console.log(encrypted)
-  keys
-  console.log("Q5: ", keys);
   var Q3 = fake_window.localStorage.kversion;
   let tostr = '';
   tostr += Q3;
   var Q1 = r(parseInt(tostr));
-  console.log("Q1: ", Q1);
   let Q8 = (R(keys, Q1), keys)
-  console.log("Q8: ", Q8);
 
   let num: number[] = [];
 
@@ -568,7 +561,6 @@ const main = async (xrax: string) => {
   });
 
   let str = btoa(String.fromCharCode.apply(null, num));
-  console.log("Q8: ", str);
   var real = Z(encrypted, str);
 
   console.log(getSourcesUrl);
