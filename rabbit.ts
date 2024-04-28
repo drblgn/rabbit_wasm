@@ -568,7 +568,7 @@ const main = async (xrax: string) => {
 }
 
 
-main('HQJdIeHdIOWT');
+main('HQJdIeHdIOWT'); //change this value to the embed-id you want to extract from
 
 
 
