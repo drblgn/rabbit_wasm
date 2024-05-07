@@ -547,6 +547,8 @@ const main = async (xrax: string) => {
     "method": "GET",
     "mode": "cors"
   })).json();
+  console.log("\nResponse from getSources:");
+  console.log(resp_json);
   let encrypted = resp_json.sources;
   var Q3 = fake_window.localStorage.kversion;
   let tostr = '';
@@ -563,12 +565,12 @@ const main = async (xrax: string) => {
   let str = btoa(String.fromCharCode.apply(null, num));
   var real = Z(encrypted, str);
 
-  console.log(getSourcesUrl);
+  console.log("\n Decoded sources:");
   console.log(real);
 }
 
 
-main('HQJdIeHdIOWT'); //change this value to the embed-id you want to extract from
+main('Cp1FVcet3Kg7'); //change this value to the embed-id you want to extract from
 
 
 
