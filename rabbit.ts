@@ -1,6 +1,6 @@
 const data = require('./decodedpng.js');
 const cryptoJs = require('crypto-js');
-const embed_url = "https://rabbitstream.net/v2/embed-4/OjT6VRrSi0YE?z=";
+const embed_url = "https://rabbitstream.net/v2/embed-4/";
 const referrer = "https://flixhq.to/";
 const user_agent = "Mozilla/5.0 (X11; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0";
 
@@ -540,8 +540,8 @@ const V = async () => {
   return test;
 }
 
-const getCookie = async () => {
-  let resp = await fetch(embed_url, {
+const getCookie = async (url) => {
+  let resp = await fetch(url, {
     "headers": {
       "UserAgent": user_agent,
       "Referrer": referrer,
@@ -553,7 +553,7 @@ const getCookie = async () => {
 }
 
 const main = async (xrax: string) => {
-  await getCookie();
+  await getCookie((embed_url + xrax + "?z="));
   fake_window.xrax = xrax;
   let keys = await V();
   let getSourcesUrl = "https://rabbitstream.net/ajax/v2/embed-4/getSources?id=" + xrax + "&v=" + fake_window.localStorage.kversion + "&h=" + fake_window.localStorage.kid + "&b=1676800512"
@@ -587,4 +587,7 @@ const main = async (xrax: string) => {
 }
 
 
-main('OjT6VRrSi0YE'); //change this value to the embed-id you want to extract from
+main('Mq8xpS3VL9Dz'); //change this value to the embed-id you want to extract from
+
+
+
