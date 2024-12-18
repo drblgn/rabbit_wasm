@@ -1,15 +1,15 @@
-const data = require('./decodedpng.js');
 const util = require('util');
+const pixels = require('image-pixels');
 const cryptoJs = require('crypto-js');
-const embed_url = "https://pepepeyo.xyz/v2/embed-4/";
-const referrer = "https://flixhq.to/";
 const user_agent = "Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0";
 import { webcrypto } from 'crypto'
 const crypto = webcrypto as unknown as Crypto
+
 let wasm: any;
 let arr = new Array(128).fill(void 0);
 const dateNow = Date.now();
 let content: string;
+let referrer = "";
 
 function isDetached(buffer: ArrayBuffer): boolean {
     if (buffer.byteLength === 0) {
@@ -28,7 +28,7 @@ const meta = {
 const image_data = {
     height: 50,
     width: 65,
-    data: data.data,
+    data: new Uint8ClampedArray(),
 }
 
 interface fakeLocalStorage {
@@ -42,7 +42,7 @@ interface fakeWindow {
 }
 
 const canvas = {
-    baseUrl: "https://pepepeyo.xyz/v2/embed-4/mcAWNPptFcOb?z=",
+    baseUrl: "",
     width: 0,
     height: 0,
     style: {
@@ -67,10 +67,10 @@ const fake_window: fakeWindow = {
     document: {
         cookie: "",
     },
-    origin: "https://pepepeyo.xyz",
+    origin: "",
     location: {
-        href: "https://pepepeyo.xyz/v2/embed-4/mcAWNPptFcOb?z=",
-        origin: "https://pepepeyo.xyz",
+        href: "",
+        origin: "",
     },
     performance: {
         timeOrigin: dateNow,
@@ -91,7 +91,7 @@ const fake_window: fakeWindow = {
 
 const nodeList = {
     image: {
-        src: "https://pepepeyo.xyz/images/image.png?v=0.1.4",
+        src: "",
         height: 50,
         width: 65,
         complete: true,
@@ -109,7 +109,6 @@ arr.push(void 0, null, true, false);
 let size = 0;
 let memoryBuff: Uint8Array | null;
 
-//fix this
 function getMemBuff(): Uint8Array {
     return memoryBuff = null !== memoryBuff && 0 !== memoryBuff.byteLength ? memoryBuff : new Uint8Array(wasm.memory.buffer);
 }
@@ -342,8 +341,6 @@ function initWasm() {
             },
             '__wbg_querySelector_118a0639aa1f51cd': function() {
                 return applyToWindow(function(index: number, decodeIndex: number, decodeOffset: number) {
-                    //let item = get(index).querySelector(decodeSub(decodeIndex, decodeOffset));
-                    //return isNull(item) ? 0 : addToStack(item);
                     return addToStack(meta);
                 }, arguments);
             },
@@ -353,9 +350,7 @@ function initWasm() {
                 }, arguments);
             },
             '__wbg_getAttribute_706ae88bd37410fa': function(offset: number, index: number, decodeIndex: number, decodeOffset: number) {
-                //let attr = get(index).getAttribute(decodeSub(decodeIndex, decodeOffset));
                 let attr = meta.content;
-                //todo!
                 let todo = isNull(attr) ? 0 : parse(attr, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
                 getDataView().setInt32(offset + 4, size, true);
                 getDataView().setInt32(offset, todo, true);
@@ -564,7 +559,6 @@ function QZ(QP: any) {
 }
 
 
-// todo!
 async function loadWasm(url: any) {
     let mod: any, buffer: any;
     return void 0 !== wasm ? wasm : (mod = initWasm(), {
@@ -582,37 +576,8 @@ const grootLoader = {
 
 let wasmLoader = Object.assign(loadWasm, { 'initSync': QZ }, grootLoader);
 
-const Z = (z: string, Q0: string) => {
-    try {
-        var Q1 = cryptoJs.AES.decrypt(z, Q0);
-        return JSON.parse(Q1.toString(cryptoJs.enc.Utf8));
-    } catch (Q2: any) {
-    }
-    return [];
-}
-
-const R = (z: Uint8Array, Q0: Array<number>) => {
-    try {
-        for (let Q1 = 0; Q1 < z.length; Q1++) {
-            z[Q1] = z[Q1] ^ Q0[Q1 % Q0.length];
-        }
-    } catch (Q2) {
-        return null;
-    }
-}
-
-
-function r(z: number) {
-    return [
-        (4278190080 & z) >> 24,
-        (16711680 & z) >> 16,
-        (65280 & z) >> 8,
-        255 & z
-    ];
-}
-
-const V = async () => {
-    let Q0 = await wasmLoader('https://pepepeyo.xyz/images/loading.png?v=0.0.9');
+const V = async (url: string) => {
+    let Q0 = await wasmLoader(url);
     fake_window.bytes = Q0;
     try {
         wasmLoader.groot();
@@ -620,11 +585,11 @@ const V = async () => {
         console.log("error: ", error);
     }
     fake_window.jwt_plugin(Q0);
-    //let test = new Uint8Array(fake_window.clipboard());
-    //return test;
+    return fake_window.navigate();
 }
 
 const getMeta = async (url: string) => {
+    console.log(referrer);
     let resp = await fetch(url, {
         "headers": {
             "UserAgent": user_agent,
@@ -654,7 +619,7 @@ const M = (a: any, P: any) => {
         var Q0 = cryptoJs.AES.decrypt(a, P);
         return JSON.parse(Q0.toString(cryptoJs.enc.Utf8));
     } catch (Q1) {
-        console.log(Q1.message);
+        var Q0 = cryptoJs.AES.decrypt(a, P);
     }
     return [];
 };
@@ -663,47 +628,64 @@ function z(a: any) {
     return [(a & 4278190080) >> 24, (a & 16711680) >> 16, (a & 65280) >> 8, a & 255];
 }
 
-const main = async (xrax: string) => {
-    await getMeta((embed_url + xrax + "?z="));
-    console.log(embed_url + xrax + "?z=");
+const main = async (embed_url: string) => {
+    referrer = embed_url.includes("mega") ? "https://sflix2.to" : "https://flixhq.to";
+    let regx = /([A-Z])\w+/;
+    let xrax = embed_url.match(regx)[0];
+    console.log(xrax);
+
+    regx = /https:\/\/[a-zA-Z0-9.]*/;
+    let base_url = embed_url.match(regx)[0];
+    console.log(base_url);
+
+    nodeList.image.src = base_url + "/images/image.png?v=0.0.9";
+    let data = new Uint8ClampedArray((await pixels(nodeList.image.src)).data);
+    image_data.data = data;
+    let test = embed_url.split('/');
+
+    let browser_version = 1676800512
+    canvas.baseUrl = base_url;
+    fake_window.origin = base_url;
+    fake_window.location.origin = base_url;
+    fake_window.location.href = embed_url;
     fake_window.xrax = xrax;
     fake_window.G = xrax;
-    let browser_version = 1676800512
-    await V();
-    let getSourcesUrl = "https://pepepeyo.xyz/ajax/v2/embed-4/getSources?id=" + fake_window.pid + "&v=" + fake_window.localStorage.kversion + "&h=" + fake_window.localStorage.kid + "&b=" + browser_version;
+
+    await getMeta(embed_url);
+
+    let Q5 = await V(base_url + "/images/loading.png?v=0.0.9");
+
+    let getSourcesUrl = "";
+
+    if (base_url.includes("mega")) {
+        getSourcesUrl = base_url + "/" + test[3] + "/ajax/" + test[4] + "/getSources?id=" + fake_window.pid + "&v=" + fake_window.localStorage.kversion + "&h=" + fake_window.localStorage.kid + "&b=" + browser_version;
+    } else {
+        getSourcesUrl = base_url + "/ajax/" + test[3] + "/" + test[4] + "/getSources?id=" + fake_window.pid + "&v=" + fake_window.localStorage.kversion + "&h=" + fake_window.localStorage.kid + "&b=" + browser_version;
+    }
     console.log(getSourcesUrl);
     let resp_json = await (await fetch(getSourcesUrl, {
         "headers": {
             "User-Agent": user_agent,
-            //"Referrer": fake_window.origin + "/v2/embed-4/" + xrax + "?z=",
-            "Referrer": "https://pepepeyo.xyz" + "/v2/embed-4/" + xrax + "?z=",
+            "Referrer": embed_url,
+            "X-Requested-With": "XMLHttpRequest",
         },
         "method": "GET",
         "mode": "cors"
     })).json();
     console.log("\nResponse from getSources:");
     console.log(resp_json);
-    //let encrypted = resp_json.sources;
+
     let Q3 = fake_window.localStorage.kversion;
     let Q1 = z(Q3);
-    let Q5 = fake_window.navigate();
-    console.log("Q5: " + Q5);
     Q5 = new Uint8Array(Q5);
-    console.log("Q5: " + Q5);
     let Q8: any;
     Q8 = resp_json.t != 0 ? (i(Q5, Q1), Q5) : (Q8 = resp_json.k, i(Q8, Q1), Q8);
-    console.log("Q8: " + Q8);
-    console.log("Q8.length: " + Q8.length);
 
 
     let str = btoa(String.fromCharCode.apply(null, new Uint8Array(Q8)));
-    console.log("key: " + str);
     var real = M(resp_json.sources, str);
-    console.log("decoded:");
     console.log(real);
-    console.log("link: " + real[0].file);
-
 }
 
 
-main('ow7UEonAAf1l'); //change this value to the embed-id you want to extract from
+main("https://megacloud.tube/embed-1/e-1/DagsMlhYUNtW?z="); //change this value to the embed_url you want
